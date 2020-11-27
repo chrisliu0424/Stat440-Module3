@@ -9,7 +9,7 @@ import pickle
 
 train_dir = "/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/tr"
 test_dir = "/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/te"
-IMG_SIZE = 50
+IMG_SIZE = 200
 
 # Code taken from: https://stackoverflow.com/questions/57111243/how-to-read-multiple-text-files-in-a-folder-with-python
 new_list = []
