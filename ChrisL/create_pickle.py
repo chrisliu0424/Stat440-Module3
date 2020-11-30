@@ -1,15 +1,15 @@
 # '/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/tr'
 
 import numpy as np
-import matplotlib.pyplot as plt
 import os
-import cv2
-from tqdm import tqdm
 import pickle
+from PIL import Image
+import glob
 
 train_dir = "/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/tr"
 test_dir = "/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/te"
-IMG_SIZE = 200
+IMG_WIDTH = 384
+IMG_LENGTH = 512
 
 # Code taken from: https://stackoverflow.com/questions/57111243/how-to-read-multiple-text-files-in-a-folder-with-python
 new_list = []
@@ -25,40 +25,47 @@ class_num = [x[0] for x in new_list]
 training_data = []
 testing_data = []
 
-# Code taken from: https://pythonprogramming.net/loading-custom-data-deep-learning-python-tensorflow-keras/
-def create_x_data(data,DATADIR):
-	
-	path = DATADIR  # create path 
-	for img in tqdm(os.listdir(path)):  # iterate over each image per dogs and cats
-		try:
-			img_array = cv2.imread(os.path.join(path,img) ,cv2.IMREAD_GRAYSCALE)  # convert to array
-			new_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))  # resize to normalize data size
-			data.append([new_array])  # add this to our data
-		except Exception as e:  # in the interest in keeping the output clean...
-			pass
-		#except OSError as e:
-		#    print("OSErrroBad img most likely", e, os.path.join(path,img))
-		#except Exception as e:
-		#    print("general exception", e, os.path.join(path,img))
+# Code taken from: https://stackoverflow.com/questions/51178166/iterate-through-folder-with-pillow-image-open
 
-create_x_data(training_data,train_dir)
-X_train = np.array(training_data).reshape(-1,IMG_SIZE,IMG_SIZE,1)
-y_train = class_num
+images = []
+for f in sorted(glob.glob("/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/tr/*")):
+    images.append(np.asarray(Image.open(f)))
 
-create_x_data(testing_data,test_dir)
-X_test = np.array(testing_data).reshape(-1,IMG_SIZE,IMG_SIZE,1)
+train_images = np.array(images)
+train_labels = np.array(class_num,dtype = "uint8").reshape(-1,1)
 
 
-# save data
-pickle_out = open("X_train.pickle","wb")
-pickle.dump(X_train,pickle_out)
+images_test = []
+for ft in sorted(glob.glob("/Users/chris/Documents/GitHub/Stat440-Module3/Modified_data/garbage/te/*")):
+    images_test.append(np.asarray(Image.open(ft)))
+
+test_images = np.array(images_test)
+
+
+validation_images, validation_labels = train_images[:100], train_labels[:100]
+train_images, train_labels = train_images[100:], train_labels[100:]
+print(validation_images.shape)
+print(train_images.shape)
+
+# # save data
+pickle_out = open("train_images.pickle","wb")
+pickle.dump(train_images,pickle_out)
 pickle_out.close()
 
-pickle_out = open("y_train.pickle","wb")
-pickle.dump(y_train,pickle_out)
+pickle_out = open("train_labels.pickle","wb")
+pickle.dump(train_labels,pickle_out)
 pickle_out.close()
 
-pickle_out = open("X_test.pickle","wb")
-pickle.dump(X_test,pickle_out)
+pickle_out = open("validation_images.pickle","wb")
+pickle.dump(validation_images,pickle_out)
 pickle_out.close()
 
+pickle_out = open("validation_labels.pickle","wb")
+pickle.dump(validation_labels,pickle_out)
+pickle_out.close()
+
+pickle_out = open("test_images.pickle","wb")
+pickle.dump(test_images,pickle_out)
+pickle_out.close()
+
+print("Successfully Read In Images!")
